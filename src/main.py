@@ -1,4 +1,5 @@
 import os
+from langchain import hub
 from dotenv import load_dotenv
 import google.generativeai as genai
 from langchain_core.prompts import PromptTemplate
@@ -35,8 +36,7 @@ llm = ChatGoogleGenerativeAI(model=Generative_model, temperature=0.7)
 # Define the URL to load
 urls = ["https://kenyanwallstreet.com/safaricom-and-pezesha-introduce-mkopo-wa-pochi-to-lend-small-businesses/",
         "https://kenyanwallstreet.com/nses-next-listing-expected-to-be-marula-mining/", "https://kenyanwallstreet.com/value-of-public-assets-traced-by-eacc-declines-to-ksh-6-6bn-in-2022-23/",
-        "https://kenyanwallstreet.com/sgr-passenger-traffic-drops-by-11-per-cent-in-q1-2024/S",
-        "https://www.kenyamoja.com/business/kenyan-wallstreet"]
+        "https://kenyanwallstreet.com/sgr-passenger-traffic-drops-by-11-per-cent-in-q1-2024/S"]
 
 # Initialize WebBaseLoader with BeautifulSoup parsing options
 loader = WebBaseLoader(
@@ -66,13 +66,15 @@ retriever = vectordb.as_retriever()
 
 print(retriever)
 
+
 # Create prompt template for RAG
 prompt_template = PromptTemplate(
     input_variables=["context", "question"],
     template="""
     You are an AI assistant with access to a document containing information about investing in Kenya. 
     Your task is to provide relevant information based on this document. If the document does not contain 
-    the relevant information, provide a generic answer and prompt the user for more specific content.
+    the relevant information, provide a generic answer but mention this is a generic answer since the document does not have
+    that information.
 
     Context:
     {context}
@@ -95,5 +97,7 @@ rag_chain = (
     | StrOutputParser()
 )
 
-rag_chain.invoke("What are investments?")
+response = rag_chain.invoke("I need to understand what investments are withing the Kenyan context. Which areas should I focus on as an investor?")
+
+print(response)
 
